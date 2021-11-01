@@ -1,17 +1,17 @@
 # Local .terraform directories
 
-## **/.terraform/*
+## \*\*/.terraform/\*
 
 Игнорировать все файлы папки .terragorm находящейся во всех подпапках
 
 
 # .tfstate files
 
-## *.tfstate
+## \*.tfstate
 
 Игнорировать все файлы вида любое_количество_символов.tfstate
 
-## *.tfstate.*
+## \*.tfstate.\*
 
 Игнорировать все файлы вида любое_количество_символов.tfstate.любое_количество_символов
 
@@ -27,7 +27,7 @@
 # control as they are data points which are potentially sensitive and subject
 # to change depending on the environment.
 
-## *.tfvars
+## \*.tfvars
 
 Игнорировать все файлы вида любое_количество_символов.tfvars
 
@@ -43,18 +43,18 @@
 
 Игнорировать файл override.tf.json
 
-## *_override.tf
+## \*_override.tf
 
 Игнорировать файлы вида любое_количество_символов_override.tf
 
-## *_override.tf.json
+## \*_override.tf.json
 
 Игнорировать файлы вида любое_количество_символов_override.tf.json
 
 
 # Include override files you do wish to add to version control using negated pattern
 
-## !example_override.tf
+## \!example_override.tf
 
 Включать файл example_override.tf не смотря на игнорирование файлов вида любое_количество_символов_override.tf.json
 

@@ -20,6 +20,8 @@ chdir("/tmp")
 
 1. Предположим, приложение пишет лог в текстовый файл. Этот файл оказался удален (deleted в lsof), однако возможности сигналом сказать приложению переоткрыть файлы или просто перезапустить приложение – нет. Так как приложение продолжает писать в удаленный файл, место на диске постепенно заканчивается. Основываясь на знаниях о перенаправлении потоков предложите способ обнуления открытого удаленного файла (чтобы освободить место на файловой системе).
 
+
+```bash
 root@vagrant:~# dd if=/dev/sda of=/tmp/test.log bs=1 &
 [1] 3319
 root@vagrant:~# rm -f /tmp/test.log 
@@ -27,6 +29,7 @@ root@vagrant:~# lsof | grep deleted
 dd        3319                          root    1w      REG              253,0   7747900    3670028 /tmp/test.log (deleted)
 root@vagrant:~# echo > /proc/3319/fd/1
 root@vagrant:~# kill 3319
+```
 
 1. Занимают ли зомби-процессы какие-то ресурсы в ОС (CPU, RAM, IO)?
 
@@ -39,6 +42,7 @@ root@vagrant:~# kill 3319
     ```
     На какие файлы вы увидели вызовы группы `open` за первую секунду работы утилиты? Воспользуйтесь пакетом `bpfcc-tools` для Ubuntu 20.04. Дополнительные [сведения по установке](https://github.com/iovisor/bcc/blob/master/INSTALL.md).
 
+```bash
 vagrant@vagrant:~$ sudo opensnoop-bpfcc -d 3
 PID    COMM               FD ERR PATH
 786    vminfo              6   0 /var/run/utmp
@@ -56,6 +60,7 @@ PID    COMM               FD ERR PATH
 566    irqbalance          6   0 /proc/irq/14/smp_affinity
 566    irqbalance          6   0 /proc/irq/15/smp_affinity
 vagrant@vagrant:~$
+```
 
 1. Какой системный вызов использует `uname -a`? Приведите цитату из man по этому системному вызову, где описывается альтернативное местоположение в `/proc`, где можно узнать версию ядра и релиз ОС.
 

@@ -77,7 +77,49 @@ Dec 03 09:16:08 vagrant node_exporter[1988]: ts=2021-12-03T09:16:08.376Z caller=
 Dec 03 09:16:08 vagrant node_exporter[1988]: ts=2021-12-03T09:16:08.380Z caller=tls_config.go:195 level=info msg="TLS is disabled." http2=false
 ```
 
+Вариант 2
 
+```bash
+root@vagrant:~# cat /etc/systemd/system/node_exporter.service 
+[Unit]
+Description=Node Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=node_exporter
+Group=node_exporter
+EnvironmentFile=-/etc/default/node_exporter
+ExecStart=/usr/local/bin/node_exporter $EXTRA_OPTS
+
+[Install]
+WantedBy=multi-user.target
+
+root@vagrant:~# cat /etc/default/node_exporter 
+EXTRA_OPTS="--collector.disable-defaults --collector.cpu --collector.meminfo --collector.diskstats --collector.netdev"
+
+root@vagrant:~# systemctl start node_exporter 
+root@vagrant:~# systemctl status node_exporter
+● node_exporter.service - Node Exporter
+     Loaded: loaded (/etc/systemd/system/node_exporter.service; enabled; vendor preset: enabled)
+     Active: active (running) since Fri 2021-12-03 15:49:51 UTC; 5s ago
+   Main PID: 1452 (node_exporter)
+      Tasks: 5 (limit: 1071)
+     Memory: 13.8M
+     CGroup: /system.slice/node_exporter.service
+             └─1452 /usr/local/bin/node_exporter --collector.disable-defaults --collector.cpu --collector.meminfo --collector.diskstats --collector.netdev
+
+Dec 03 15:49:51 vagrant systemd[1]: Started Node Exporter.
+Dec 03 15:49:51 vagrant node_exporter[1452]: ts=2021-12-03T15:49:51.795Z caller=node_exporter.go:182 level=info msg="Starting node_exporter" version="(version=1.3.0, >
+Dec 03 15:49:51 vagrant node_exporter[1452]: ts=2021-12-03T15:49:51.796Z caller=node_exporter.go:183 level=info msg="Build context" build_context="(go=go1.17.3, user=>
+Dec 03 15:49:51 vagrant node_exporter[1452]: ts=2021-12-03T15:49:51.797Z caller=node_exporter.go:108 level=info msg="Enabled collectors"
+Dec 03 15:49:51 vagrant node_exporter[1452]: ts=2021-12-03T15:49:51.797Z caller=node_exporter.go:115 level=info collector=cpu
+Dec 03 15:49:51 vagrant node_exporter[1452]: ts=2021-12-03T15:49:51.797Z caller=node_exporter.go:115 level=info collector=diskstats
+Dec 03 15:49:51 vagrant node_exporter[1452]: ts=2021-12-03T15:49:51.797Z caller=node_exporter.go:115 level=info collector=meminfo
+Dec 03 15:49:51 vagrant node_exporter[1452]: ts=2021-12-03T15:49:51.798Z caller=node_exporter.go:115 level=info collector=netdev
+Dec 03 15:49:51 vagrant node_exporter[1452]: ts=2021-12-03T15:49:51.798Z caller=node_exporter.go:199 level=info msg="Listening on" address=:9100
+Dec 03 15:49:51 vagrant node_exporter[1452]: ts=2021-12-03T15:49:51.804Z caller=tls_config.go:195 level=info msg="TLS is disabled." http2=false
+```
 
 
 1. Ознакомьтесь с опциями node_exporter и выводом `/metrics` по-умолчанию. Приведите несколько опций, которые вы бы выбрали для базового мониторинга хоста по CPU, памяти, диску и сети.

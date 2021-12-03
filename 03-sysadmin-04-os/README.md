@@ -176,6 +176,16 @@ forkbomb()
 forkbomb
 ``` 
 
+```bash
+[Dec 3 10:58] cgroup: fork rejected by pids controller in /user.slice/user-1000.slice/session-5.scope
+
+vagrant@vagrant:~$ ulimit -u
+3571
+
+      -u        the maximum number of user processes
+```
+
+
 ## Как сдавать задания
 
 Обязательными к выполнению являются задачи без указания звездочки. Их выполнение необходимо для получения зачета и диплома о профессиональной переподготовке.

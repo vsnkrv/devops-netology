@@ -31,13 +31,18 @@ Status Code: 307 Internal Redirect
 
 3. Какой IP адрес у вас в интернете?
 
-user@acer-r:~$ curl ifconfig.me
+```bash
+user@acer-r:~$ curl ifconfig.me/ip
 94.140.145.66
-
+```
 4. Какому провайдеру принадлежит ваш IP адрес? Какой автономной системе AS? Воспользуйтесь утилитой `whois`
 
+```bash
+user@acer-r:~$ whois 94.140.145.66 | grep 'role\|origin'
 role:           Mobile TeleSystems PJSC Ural Branch
 origin:         AS25086
+user@acer-r:~$
+```
 
 5. Через какие сети проходит пакет, отправленный с вашего компьютера на адрес 8.8.8.8? Через какие AS? Воспользуйтесь утилитой `traceroute`
 

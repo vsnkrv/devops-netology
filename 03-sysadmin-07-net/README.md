@@ -84,6 +84,9 @@ root@acer-r:~#
 mode=0 (balance-rr)
 При этом методе объединения трафик распределяется по принципу «карусели»: пакеты по очереди направляются на сетевые карты объединённого интерфейса. Например, если у нас есть физические интерфейсы eth0, eth1, and eth2, объединенные в bond0, первый пакет будет отправляться через eth0, второй — через eth1, третий — через eth2, а четвертый снова через eth0 и т.д.
 
+mode=1 (active-backup)
+Когда используется этот метод, активен только один физический интерфейс, а остальные работают как резервные на случай отказа основного.
+
 mode=2 (balance-xor)
 В данном случае объединенный интерфейс определяет, через какую физическую сетевую карту отправить пакеты, в зависимости от MAC-адресов источника и получателя.
 
@@ -98,6 +101,7 @@ mode=5 (balance-tlb)
 mode=6 (balance-alb)
 Адаптивное распределение нагрузки. Аналогично предыдущему режиму, но с возможностью балансировать также входящую нагрузку.
 
+```bash
 root@vagrant:~# modprobe bonding
 root@vagrant:~# ip link add bond0 type bond
 root@vagrant:~# ip link set bond0 type bond miimon 100 mode balance-rr
@@ -131,7 +135,7 @@ Link Failure Count: 0
 Permanent HW addr: 08:00:27:a7:df:78
 Slave queue ID: 0
 root@vagrant:~#
-
+```
 
 5. Сколько IP адресов в сети с маской /29 ? Сколько /29 подсетей можно получить из сети с маской /24. Приведите несколько примеров /29 подсетей внутри сети 10.10.10.0/24.
 
@@ -196,10 +200,10 @@ root@acer-r:~#
 
 *Linux*
 ```bash
-root@acer-r:~# arp -an
-? (192.168.1.51) в e0:cb:4e:81:69:67 [ether] на wlp2s0
-? (192.168.1.1) в f0:b4:d2:41:7c:33 [ether] на wlp2s0
-? (192.168.1.52) в 00:c0:ee:ad:ca:c5 [ether] на wlp2s0
+root@acer-r:~# ip neigh
+192.168.1.51 dev wlp2s0 lladdr e0:cb:4e:81:69:67 REACHABLE
+192.168.1.1 dev wlp2s0 lladdr f0:b4:d2:41:7c:33 REACHABLE
+192.168.1.52 dev wlp2s0 lladdr 00:c0:ee:ad:ca:c5 REACHABLE
 root@acer-r:~#ip neigh del 192.168.1.51 lladdr e0:cb:4e:81:69:67 dev wlp2s0
 root@acer-r:~# ip neigh flush all
 ```

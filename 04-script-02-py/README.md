@@ -39,7 +39,9 @@
             break
 
 	```
+
 ```python
+
 #!/usr/bin/env python3
 
 import os
@@ -58,12 +60,93 @@ for result in result_os.split('\n'):
     if result.startswith('?? ') :
         prepare_result = repo_str + '/' + result.replace('?? ', '') + ' - file not added in repository ' + repo_str
         print(prepare_result)
+
 ```
 
 
 1. Доработать скрипт выше так, чтобы он мог проверять не только локальный репозиторий в текущей директории, а также умел воспринимать путь к репозиторию, который мы передаём как входной параметр. Мы точно знаем, что начальство коварное и будет проверять работу этого скрипта в директориях, которые не являются локальными репозиториями.
 
+```python
+
+#!/usr/bin/env python3
+
+import os
+import subprocess
+import argparse
+
+def git_status(repo_path):
+    reply = subprocess.run(
+        f'git status -s',
+        cwd=repo_path,
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        encoding="utf-8",
+    )
+    if reply.returncode == 0:
+        return True, reply.stdout
+    else:
+        return False, reply.stdout + reply.stderr
+
+
+parser = argparse.ArgumentParser(description='git status script')
+
+parser.add_argument('-r', dest='repo_path', default=os.getcwd(), required = False)
+
+args = parser.parse_args()
+
+if os.path.isdir(args.repo_path):
+
+        repo = os.popen('git rev-parse --show-toplevel').read().rstrip('\n')
+        os.chdir(args.repo_path)
+
+        if subprocess.call(['git', 'rev-parse', '--show-toplevel'], stderr=subprocess.STDOUT, stdout = open(os.devnull, 'w')) == 0:
+                rc, message = git_status(args.repo_path)
+
+                for result in message.split('\n'):
+                    if result.startswith('A  ') :
+                        prepare_result = repo + '/' + result.replace('A  ', '').lstrip('../') + ' - file added in repository ' + repo
+                        print(prepare_result)
+                    if result.startswith('AM ') :
+                        prepare_result = repo + '/' + result.replace('AM ', '').lstrip('../') + ' - file added and modify in repository ' + repo
+                        print(prepare_result)
+                    if result.startswith('?? ') :
+                        prepare_result = repo + '/' + result.replace('?? ', '').lstrip('../') + ' - file not added in repository ' + repo
+                        print(prepare_result)
+        else:
+                print('Directory not a git repository')
+
+else:
+        print('Directory does not exist')
+
+```
+
+
 1. Наша команда разрабатывает несколько веб-сервисов, доступных по http. Мы точно знаем, что на их стенде нет никакой балансировки, кластеризации, за DNS прячется конкретный IP сервера, где установлен сервис. Проблема в том, что отдел, занимающийся нашей инфраструктурой очень часто меняет нам сервера, поэтому IP меняются примерно раз в неделю, при этом сервисы сохраняют за собой DNS имена. Это бы совсем никого не беспокоило, если бы несколько раз сервера не уезжали в такой сегмент сети нашей компании, который недоступен для разработчиков. Мы хотим написать скрипт, который опрашивает веб-сервисы, получает их IP, выводит информацию в стандартный вывод в виде: <URL сервиса> - <его IP>. Также, должна быть реализована возможность проверки текущего IP сервиса c его IP из предыдущей проверки. Если проверка будет провалена - оповестить об этом в стандартный вывод сообщением: [ERROR] <URL сервиса> IP mismatch: <старый IP> <Новый IP>. Будем считать, что наша разработка реализовала сервисы: drive.google.com, mail.google.com, google.com.
+
+```python
+
+#!/usr/bin/env python3
+
+import socket
+import json
+
+
+with open('fqdn_ip.txt') as json_file:
+    data = json.load(json_file)
+
+for key in data.keys():
+    ip = socket.gethostbyname(key)
+    if  ip == str(data[key]):
+        print(data[key] + ' - ' + ip)
+    else:
+        print('[ERROR] ' + key + ' IP mismatch: ' + data.get(key) + ' ' + ip)
+        data[key] = ip
+
+with open('fqdn_ip.txt', 'w') as json_file:
+    json.dump(data, json_file)
+
+```
 
 ## Дополнительное задание (со звездочкой*) - необязательно к выполнению
 

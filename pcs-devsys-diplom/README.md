@@ -12,6 +12,9 @@
 ![image](2.png)
 
 3. Установите hashicorp vault ([инструкция по ссылке](https://learn.hashicorp.com/tutorials/vault/getting-started-install?in=vault/getting-started#install-vault)).
+
+![image](3.png)
+
 4. Cоздайте центр сертификации по инструкции ([ссылка](https://learn.hashicorp.com/tutorials/vault/pki-engine?in=vault/secrets-management)) и выпустите сертификат для использования его в настройке веб-сервера nginx (срок жизни сертификата - месяц).
 5. Установите корневой сертификат созданного центра сертификации в доверенные в хостовой системе.
 6. Установите nginx.

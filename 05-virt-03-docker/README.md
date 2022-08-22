@@ -22,6 +22,7 @@
 - создайте свой fork образа;
 - реализуйте функциональность:
 запуск веб-сервера в фоне с индекс-страницей, содержащей HTML-код ниже:
+
 ```
 <html>
 <head>
@@ -95,7 +96,7 @@ e3257a399753: Mounted from library/nginx
 vagrant@server1:~$
 ```
 
-[](https://hub.docker.com/repository/docker/vsnkrv/nginx/)
+[github.com](https://hub.docker.com/repository/docker/vsnkrv/nginx/)
 
 ## Задача 2
 

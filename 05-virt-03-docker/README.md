@@ -95,6 +95,7 @@ e3257a399753: Mounted from library/nginx
 vagrant@server1:~$
 ```
 
+[](https://hub.docker.com/repository/docker/vsnkrv/nginx/)
 
 ## Задача 2
 

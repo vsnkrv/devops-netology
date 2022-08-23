@@ -98,6 +98,88 @@ vagrant@server1:~$
 
 [https://hub.docker.com/repository/docker/vsnkrv/nginx/](https://hub.docker.com/repository/docker/vsnkrv/nginx/)
 
+#FIX1
+
+```
+vagrant@server1:~$ cat ./index.html 
+<html>
+<head>
+Hey, Netology
+</head>
+<body>
+<h1>I’m DevOps Engineer!</h1>
+</body>
+</html>
+vagrant@server1:~$ cat ./Dockerfile 
+FROM nginx
+COPY index.html /usr/share/nginx/html/
+EXPOSE 80
+vagrant@server1:~$ docker build -t vsnkrv/nginx:05-virt-03-docker .
+Sending build context to Docker daemon  40.45kB
+Step 1/3 : FROM nginx
+latest: Pulling from library/nginx
+7a6db449b51b: Already exists 
+ca1981974b58: Already exists 
+d4019c921e20: Already exists 
+7cb804d746d4: Already exists 
+e7a561826262: Already exists 
+7247f6e5c182: Already exists 
+Digest: sha256:f15eab733ef99f91d1ad3ab6192ded46a15e4e58cf8fb9ddbe6c6618450e683c
+Status: Downloaded newer image for nginx:latest
+ ---> 2b7d6430f78d
+Step 2/3 : COPY index.html /usr/share/nginx/html/
+ ---> 754de8516aab
+Step 3/3 : EXPOSE 80
+ ---> Running in 9b4ebac1ec43
+Removing intermediate container 9b4ebac1ec43
+ ---> f1fa1e704b7c
+Successfully built f1fa1e704b7c
+Successfully tagged vsnkrv/nginx:05-virt-03-docker
+vagrant@server1:~$ docker image list
+REPOSITORY     TAG                 IMAGE ID       CREATED          SIZE
+vsnkrv/nginx   05-virt-03-docker   f1fa1e704b7c   14 seconds ago   142MB
+nginx          latest              2b7d6430f78d   7 hours ago      142MB
+debian         latest              07d9246c53a6   3 weeks ago      124MB
+centos         latest              5d0da3dc9764   11 months ago    231MB
+vagrant@server1:~$ docker run -P -d vsnkrv/nginx:05-virt-03-docker
+56516372f0520a38d7cf3cedbfefc30e1e713ac554b25f5af3c057c09f663d5c
+vagrant@server1:~$ docker ps
+CONTAINER ID   IMAGE                            COMMAND                  CREATED         STATUS         PORTS                                     NAMES
+56516372f052   vsnkrv/nginx:05-virt-03-docker   "/docker-entrypoint.…"   8 seconds ago   Up 7 seconds   0.0.0.0:49155->80/tcp, :::49155->80/tcp   funny_jemison
+vagrant@server1:~$ curl localhost:49155
+<html>
+<head>
+Hey, Netology
+</head>
+<body>
+<h1>I’m DevOps Engineer!</h1>
+</body>
+</html>
+vagrant@server1:~$ docker stop 56516372f052
+56516372f052
+vagrant@server1:~$ docker login
+Authenticating with existing credentials...
+WARNING! Your password will be stored unencrypted in /home/vagrant/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+vagrant@server1:~$ docker push vsnkrv/nginx:05-virt-03-docker
+The push refers to repository [docker.io/vsnkrv/nginx]
+039f7dea289c: Pushed 
+73993eeb8aa2: Mounted from library/nginx 
+2c31eef17db8: Mounted from library/nginx 
+7b9055fc8058: Mounted from library/nginx 
+04ab349b7b3b: Mounted from library/nginx 
+226117031573: Mounted from library/nginx 
+6485bed63627: Mounted from library/nginx 
+05-virt-03-docker: digest: sha256:74cb8556ddf335dd9338ac3327c5b695172f6b53728038d05ae1379291848c31 size: 1777
+vagrant@server1:~$
+```
+
+[https://hub.docker.com/repository/docker/vsnkrv/nginx/](https://hub.docker.com/repository/docker/vsnkrv/nginx/)
+
+
 ## Задача 2
 
 Посмотрите на сценарий ниже и ответьте на вопрос:

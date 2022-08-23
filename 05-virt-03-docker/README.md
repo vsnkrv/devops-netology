@@ -98,7 +98,7 @@ vagrant@server1:~$
 
 [https://hub.docker.com/repository/docker/vsnkrv/nginx/](https://hub.docker.com/repository/docker/vsnkrv/nginx/)
 
-#FIX1
+*FIX1*
 
 ```
 vagrant@server1:~$ cat ./index.html 

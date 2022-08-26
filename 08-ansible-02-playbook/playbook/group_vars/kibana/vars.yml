@@ -1,0 +1,3 @@
+---
+kibana_version: "8.4.0"
+elastic_home: "/opt/kibana/{{ kibana_version }}"

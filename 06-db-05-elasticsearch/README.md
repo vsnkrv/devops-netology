@@ -65,6 +65,29 @@ build не проходит без ошибок, так как elasticsearch н�
 
 - ответ `elasticsearch` на запрос пути `/` в json виде
 
+```
+vagrant@server1:~$ curl --insecure -u elastic https://localhost:9200/
+Enter host password for user 'elastic':
+{
+  "name" : "dfe501aa632d",
+  "cluster_name" : "docker-cluster",
+  "cluster_uuid" : "i9LCqGThTgyobfhVmBU0WQ",
+  "version" : {
+    "number" : "8.4.0",
+    "build_flavor" : "default",
+    "build_type" : "docker",
+    "build_hash" : "f56126089ca4db89b631901ad7cce0a8e10e2fe5",
+    "build_date" : "2022-08-19T19:23:42.954591481Z",
+    "build_snapshot" : false,
+    "lucene_version" : "9.3.0",
+    "minimum_wire_compatibility_version" : "7.17.0",
+    "minimum_index_compatibility_version" : "7.0.0"
+  },
+  "tagline" : "You Know, for Search"
+}
+vagrant@server1:~$
+```
+
 Подсказки:
 - возможно вам понадобится установка пакета perl-Digest-SHA для корректной работы пакета shasum
 - при сетевых проблемах внимательно изучите кластерные и сетевые настройки в elasticsearch.yml
@@ -89,13 +112,72 @@ build не проходит без ошибок, так как elasticsearch н�
 | ind-2 | 1 | 2 |
 | ind-3 | 2 | 4 |
 
+```
+vagrant@server1:~$ curl --insecure -u elastic -XPUT https://localhost:9200/ind-1 -H 'Content-Type: application/json' -d'{ "settings": { "number_of_shards": 1,  "number_of_replicas": 0 }}'
+Enter host password for user 'elastic':
+{"acknowledged":true,"shards_acknowledged":true,"index":"ind-1"}vagrant@server1:~$ 
+vagrant@server1:~$ curl --insecure -u elastic -XPUT https://localhost:9200/ind-2 -H 'Content-Type: application/json' -d'{ "settings": { "number_of_shards": 2,  "number_of_replicas": 1 }}'
+Enter host password for user 'elastic':
+{"acknowledged":true,"shards_acknowledged":true,"index":"ind-2"}vagrant@server1:~$ 
+vagrant@server1:~$ curl --insecure -u elastic -XPUT https://localhost:9200/ind-3 -H 'Content-Type: application/json' -d'{ "settings": { "number_of_shards": 4,  "number_of_replicas": 2 }}'
+Enter host password for user 'elastic':
+{"acknowledged":true,"shards_acknowledged":true,"index":"ind-3"}vagrant@server1:~$ 
+vagrant@server1:~$
+```
+
 Получите список индексов и их статусов, используя API и **приведите в ответе** на задание.
+
+```
+vagrant@server1:~$ curl --insecure -u elastic -XGET "https://localhost:9200/_cat/indices"
+Enter host password for user 'elastic':
+green  open ind-1 ZxKCLbwtSaK9EJZ50JfZyg 1 0 0 0 225b 225b
+yellow open ind-3 JiZWMCXvRSy5llwR7ygmrg 4 2 0 0 900b 900b
+yellow open ind-2 1DnnQnj7RWK8rZ00N45dGA 2 1 0 0 450b 450b
+vagrant@server1:~$
+```
 
 Получите состояние кластера `elasticsearch`, используя API.
 
+```
+vagrant@server1:~$ curl --insecure -u elastic -XGET "https://localhost:9200/_cluster/health/?pretty=true"
+Enter host password for user 'elastic':
+{
+  "cluster_name" : "docker-cluster",
+  "status" : "yellow",
+  "timed_out" : false,
+  "number_of_nodes" : 1,
+  "number_of_data_nodes" : 1,
+  "active_primary_shards" : 9,
+  "active_shards" : 9,
+  "relocating_shards" : 0,
+  "initializing_shards" : 0,
+  "unassigned_shards" : 10,
+  "delayed_unassigned_shards" : 0,
+  "number_of_pending_tasks" : 0,
+  "number_of_in_flight_fetch" : 0,
+  "task_max_waiting_in_queue_millis" : 0,
+  "active_shards_percent_as_number" : 47.368421052631575
+}
+vagrant@server1:~$
+```
+
 Как вы думаете, почему часть индексов и кластер находится в состоянии yellow?
 
+Elasticsearch запущен в одном экземпляре
+
 Удалите все индексы.
+
+```
+vagrant@server1:~$ curl --insecure -u elastic -XDELETE 'https://localhost:9200/ind-1'
+Enter host password for user 'elastic':
+{"acknowledged":true}vagrant@server1:~$ 
+vagrant@server1:~$ curl --insecure -u elastic -XDELETE 'https://localhost:9200/ind-2'
+Enter host password for user 'elastic':
+{"acknowledged":tru
+vagrant@server1:~$ curl --insecure -u elastic -XDELETE 'https://localhost:9200/ind-3'
+Enter host password for user 'elastic':
+{"acknowledged":true}vagrant@server1:~$
+```
 
 **Важно**
 
@@ -115,19 +197,128 @@ build не проходит без ошибок, так как elasticsearch н�
 
 **Приведите в ответе** запрос API и результат вызова API для создания репозитория.
 
+```
+vagrant@server1:~$ curl --insecure -u elastic -XPUT "https://localhost:9200/_snapshot/netology_backup?pretty" -H 'Content-Type: application/json' -d' { "type": "fs",   "settings": { "location": "/usr/share/elasticsearch/snapshots" } }'
+Enter host password for user 'elastic':
+{
+  "acknowledged" : true
+}
+vagrant@server1:~$ curl --insecure -u elastic -XGET "https://localhost:9200/_snapshot/netology_backup?pretty"
+Enter host password for user 'elastic':
+{
+  "netology_backup" : {
+    "type" : "fs",
+    "settings" : {
+      "location" : "/usr/share/elasticsearch/snapshots"
+    }
+  }
+}
+```
+
 Создайте индекс `test` с 0 реплик и 1 шардом и **приведите в ответе** список индексов.
+
+```
+vagrant@server1:~$ curl --insecure -u elastic -XPUT "https://localhost:9200/test?pretty" -H 'Content-Type: application/json' -d'{ "settings": { "index": { "number_of_shards": 1, "number_of_replicas": 0 } } }'
+Enter host password for user 'elastic':
+{
+  "acknowledged" : true,
+  "shards_acknowledged" : true,
+  "index" : "test"
+}
+```
 
 [Создайте `snapshot`](https://www.elastic.co/guide/en/elasticsearch/reference/current/snapshots-take-snapshot.html) 
 состояния кластера `elasticsearch`.
 
 **Приведите в ответе** список файлов в директории со `snapshot`ами.
 
+```
+vagrant@server1:~$ curl --insecure -u elastic -XPUT "https://localhost:9200/_snapshot/netology_backup/netology_snapshot_1?wait_for_completion=true&pretty"
+Enter host password for user 'elastic':
+{
+  "snapshot" : {
+    "snapshot" : "netology_snapshot_1",
+    "uuid" : "puxDxQyeS46GMdvX_dZRoA",
+    "repository" : "netology_backup",
+    "version_id" : 8040099,
+    "version" : "8.4.0",
+    "indices" : [
+      ".security-7",
+      "test",
+      ".geoip_databases"
+    ],
+    "data_streams" : [ ],
+    "include_global_state" : true,
+    "state" : "SUCCESS",
+    "start_time" : "2022-08-31T05:07:43.866Z",
+    "start_time_in_millis" : 1661922463866,
+    "end_time" : "2022-08-31T05:07:45.072Z",
+    "end_time_in_millis" : 1661922465072,
+    "duration_in_millis" : 1206,
+    "failures" : [ ],
+    "shards" : {
+      "total" : 3,
+      "failed" : 0,
+      "successful" : 3
+    },
+    "feature_states" : [
+      {
+        "feature_name" : "geoip",
+        "indices" : [
+          ".geoip_databases"
+        ]
+      },
+      {
+        "feature_name" : "security",
+        "indices" : [
+          ".security-7"
+        ]
+      }
+    ]
+  }
+}
+```
+
+```
+root@5b9b3186e823:/usr/share/elasticsearch# ls -l snapshots/
+total 36
+-rw-rw-r-- 1 elasticsearch root  1104 Aug 31 05:07 index-0
+-rw-rw-r-- 1 elasticsearch root     8 Aug 31 05:07 index.latest
+drwxrwxr-x 5 elasticsearch root  4096 Aug 31 05:07 indices
+-rw-rw-r-- 1 elasticsearch root 18496 Aug 31 05:07 meta-puxDxQyeS46GMdvX_dZRoA.dat
+-rw-rw-r-- 1 elasticsearch root   388 Aug 31 05:07 snap-puxDxQyeS46GMdvX_dZRoA.dat
+root@5b9b3186e823:/usr/share/elasticsearch#
+```
+
 Удалите индекс `test` и создайте индекс `test-2`. **Приведите в ответе** список индексов.
+
+```
+vagrant@server1:~$ curl --insecure -u elastic -XDELETE "https://localhost:9200/test?pretty"
+Enter host password for user 'elastic':
+{
+  "acknowledged" : true
+}
+vagrant@server1:~$ curl --insecure -u elastic -XPUT "https://localhost:9200/test-2?pretty" -H 'Content-Type: application/json' -d'{ "settings": { "index": { "number_of_shards": 1, "number_of_replicas": 0 } } }'
+Enter host password for user 'elastic':
+{
+  "acknowledged" : true,
+  "shards_acknowledged" : true,
+  "index" : "test-2"
+}
+```
 
 [Восстановите](https://www.elastic.co/guide/en/elasticsearch/reference/current/snapshots-restore-snapshot.html) состояние
 кластера `elasticsearch` из `snapshot`, созданного ранее. 
 
 **Приведите в ответе** запрос к API восстановления и итоговый список индексов.
+
+```
+vagrant@server1:~$ curl --insecure -u elastic -XPOST "https://localhost:9200/_snapshot/netology_backup/netology_snapshot_1/_restore?pretty"
+Enter host password for user 'elastic':
+{
+  "accepted" : true
+}
+```
 
 Подсказки:
 - возможно вам понадобится доработать `elasticsearch.yml` в части директивы `path.repo` и перезапустить `elasticsearch`

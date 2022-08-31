@@ -1,0 +1,8 @@
+#cloud-config
+users:
+  - name: user
+    groups: sudo
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCqlvPI+bQzJYBqWP8IT6mHGzybhKtP2tBQPycHHVgoLf9AMBEp4JPQnWFM5IVcuv5bHiKxf7AKnTXTjylZRIySbds8YF4eofr3M3+8ZKwI7NmBRRZLYvWWYj6zh1PlqJ3CN/PGzTzfgDp4E5P/mXYynJlXivF8oHXPWS1kETdRuy2IWUA5crSIsNP8lPH4GDB3s68qd4jyL3HYQT5jhkcj1yykRKLJhPUXJqKPNGCis2XEgxtzh+fPGyN1SQMbSbfu3/0+3WA884gSos8DifHJnxJdgJib4Itt6+Y0Gb0YL0PGduuMqNfOFyY0zPcWOsZ0YPZI6R1o81V3XpoU3q0HGSBNxDV9bBJnLJSQKMdt9Xf/89gYv4UZABU//n+dmcS2jHcXbjtFSyLpynbu+cbxih6Z+OjTGPUDG5OSRo7GAVdtHQETbVC55zBUwDAY8AgPBax847A2Jba/xSiMnck9JZTKZGDkaD7zWGEfLhFrqxQ2IcXU5GSD6Q7JlImnCYM= user@acer-r

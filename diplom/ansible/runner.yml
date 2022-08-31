@@ -1,0 +1,14 @@
+- hosts: runner
+  gather_facts: false
+  become:
+    true
+  become_method:
+    sudo
+  become_user:
+    root
+  remote_user:
+    user
+
+  roles:
+   - runner
+   - node_exporter

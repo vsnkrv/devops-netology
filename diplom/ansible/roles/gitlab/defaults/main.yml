@@ -1,0 +1,5 @@
+---
+my_domain: vsnk.shop
+gitlab_edition: "gitlab-ce"
+gitlab_repository_installation_script_url: "https://packages.gitlab.com/install/repositories/gitlab/{{ gitlab_edition }}/script.deb.sh"
+gitlab_modules: [ 'curl', 'tzdata', 'perl', 'gnupg2' ]

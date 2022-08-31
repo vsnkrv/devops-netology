@@ -1,0 +1,13 @@
+- hosts: runner app
+  gather_facts: false
+  become:
+    true
+  become_method:
+    sudo
+  become_user:
+    root
+  remote_user:
+    user
+
+  roles:
+   - copy_ssh_key

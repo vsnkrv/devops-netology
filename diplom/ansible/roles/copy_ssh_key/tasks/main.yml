@@ -1,0 +1,15 @@
+- name: Copy id_rsa.pub from runner
+  fetch:
+    src: /home/gitlab-runner/.ssh/id_rsa.pub
+    dest: ./vars/runner_id_rsa.pub
+    flat: yes
+  when:
+  - copy_id_rsa_pub == 'src'
+
+- name: Copy id_rsa.pub to app
+  authorized_key:
+    user: root
+    state: present
+    key: "{{ lookup('file', './vars/runner_id_rsa.pub') }}"
+  when:
+  - copy_id_rsa_pub == 'dst'

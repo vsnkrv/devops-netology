@@ -1,0 +1,13 @@
+- hosts: mysql
+  gather_facts: false
+  become:
+    true
+  become_method:
+    sudo
+  become_user:
+    root
+  remote_user:
+    user
+  roles:
+   - mysql
+   - node_exporter

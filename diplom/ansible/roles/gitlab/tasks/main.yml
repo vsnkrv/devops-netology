@@ -1,0 +1,29 @@
+---
+- name: Install GitLab dependencies.
+  apt: name={{ item }} update_cache=yes state=present
+  loop: "{{ gitlab_modules }}"
+
+- name: Download GitLab repository installation script.
+  get_url:
+    url: "{{ gitlab_repository_installation_script_url }}"
+    dest: /tmp/gitlab_install_repository.sh
+
+- name: Install GitLab repository.
+  command: bash /tmp/gitlab_install_repository.sh
+  register: output
+
+- name: Install GitLab.
+  apt:
+    name: "{{ gitlab_edition }}"
+    state: present
+
+- name: Apply Gitlab template
+  template:
+    src: templates/gitlab.rb.j2
+    dest: /etc/gitlab/gitlab.rb
+
+- name: Reconfigure GitLab.
+  command: >
+    gitlab-ctl reconfigure
+    creates=/var/opt/gitlab/bootstrapped
+  failed_when: false

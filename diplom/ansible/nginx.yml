@@ -1,0 +1,14 @@
+- hosts: nginx
+  gather_facts: false
+  become:
+    true
+  become_method:
+    sudo
+  become_user:
+    root
+  remote_user:
+    user
+
+  roles:
+   - nginx
+   - node_exporter

@@ -1,0 +1,50 @@
+---
+- name: apt update
+  shell: apt update
+
+- name: Install package
+  package:
+    name:
+      - nginx
+      - letsencrypt
+      - "python3-certbot-nginx"
+    state: present
+  notify:
+    - nginx systemd
+
+- name: Generate new certificate www.vsnk.shop
+  shell: >
+    certbot certonly --nginx --email '{{ letsencrypt_email }}'
+    --agree-tos --no-eff-email -d 'www.{{ my_domain }}'
+
+- name: Generate new certificate gitlab.vsnk.shop
+  shell: >
+    certbot certonly --nginx --email '{{ letsencrypt_email }}'
+    --agree-tos --no-eff-email -d 'gitlab.{{ my_domain }}'
+
+- name: Generate new certificate grafana.vsnk.shop
+  shell: >
+    certbot certonly --nginx --email '{{ letsencrypt_email }}'
+    --agree-tos --no-eff-email -d 'grafana.{{ my_domain }}'
+
+- name: Generate new certificate prometheus.vsnk.shop
+  shell: >
+    certbot certonly --nginx --email '{{ letsencrypt_email }}'
+    --agree-tos --no-eff-email -d 'prometheus.{{ my_domain }}'
+
+- name: Generate new certificate alertmanager.vsnk.shop
+  shell: >
+    certbot certonly --nginx --email '{{ letsencrypt_email }}'
+    --agree-tos --no-eff-email -d 'alertmanager.{{ my_domain }}'
+
+- name: Disable default site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Apply Nginx template
+  template:
+    src: templates/my_domain.conf
+    dest: /etc/nginx/conf.d/{{ my_domain }}.conf
+  notify:
+    - nginx restart

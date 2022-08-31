@@ -1,0 +1,97 @@
+---
+- name: Purge Apache2
+  package:
+    name=apache2
+    state=absent
+
+- name: apt update
+  shell: apt update
+
+- name: Install Nginx Web Server and PHP modules
+  package:
+    name:
+      - nginx
+      - 'php7.4'
+      - 'php7.4-fpm'
+      - 'php7.4-mysql'
+      - 'php-common'
+      - 'php7.4-cli'
+      - 'php7.4-common'
+      - 'php7.4-json'
+      - 'php7.4-opcache'
+      - 'php7.4-readline'
+      - 'php7.4-mbstring'
+      - 'php7.4-xml'
+      - 'php7.4-gd'
+      - 'php7.4-curl'
+      - 'php7.4-zip'
+      - rsync
+    state: present
+  notify:
+    - nginx systemd
+
+- name: Replace default site
+  template:
+    src=templates/nginx.conf
+    dest=/etc/nginx/sites-enabled/default
+  notify:
+    - nginx restart
+
+- name: Create document root
+  file:
+    path: "/var/www/{{ my_domain }}"
+    state: directory
+    owner: "www-data"
+    group: "www-data"
+    mode: '0755'
+
+- name: Download and unpack latest WordPress
+  unarchive:
+    src: https://wordpress.org/latest.tar.gz
+    dest: "/var/www/{{ my_domain }}"
+    remote_src: yes
+    extra_opts: [--strip-components=1]
+    creates: "/var/www/{{ my_domain }}/wp-admin"
+
+- name: Set ownership
+  file:
+    path: "/var/www/{{ my_domain }}"
+    state: directory
+    recurse: yes
+    owner: www-data
+    group: www-data
+
+- name: Set permissions for directories
+  shell: "/usr/bin/find /var/www/{{ my_domain }}/ -type d -exec chmod 755 {} \\;"
+
+- name: Set permissions for files
+  shell: "/usr/bin/find /var/www/{{ my_domain }}/ -type f -exec chmod 644 {} \\;"
+
+- name: Set up wp-config
+  template:
+    src: "templates/wp-config.php.j2"
+    dest: "/var/www/{{ my_domain }}/wp-config.php"
+
+- name: Restart nginx, in all cases
+  ansible.builtin.service:
+    name: nginx
+    state: restarted
+
+- name: download Wordpress CLI
+  command: curl https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /tmp/wp-cli.phar
+  args:
+    creates: "/tmp/wp-cli.phar"
+
+- name: move the binary to the final destination
+  copy:
+    src: "/tmp/wp-cli.phar"
+    dest: "/usr/local/bin/wp"
+    owner: "root"
+    group: "root"
+    mode: 0755
+    remote_src: yes
+
+- name: Create first site
+  command: sudo -u user -- wp core install --url="www.{{ my_domain }}" --title="www.{{ my_domain }}" --admin_user="admin" --admin_password="password" --admin_email="postmaster@vsnk.shop" --skip-email
+  args:
+    chdir: "/var/www/{{ my_domain }}"

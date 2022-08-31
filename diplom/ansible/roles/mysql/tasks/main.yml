@@ -1,0 +1,107 @@
+---
+- name: Install Mysql
+  become: true
+  package:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - "{{ mysql_packages }}"
+
+- name: create db
+  become: true
+  mysql_db:
+     name: "{{ db_name }}"
+     state: present
+
+- name: create mysql user
+  become: true
+  mysql_user:
+     name: "{{ db_user }}"
+     password: "{{ db_password }}"
+     priv: "{{ db_name }}.*:ALL"
+     host: '%'
+     state: present
+
+- name: Enable remote login to mysql
+  become: true
+  lineinfile:
+     path: /etc/mysql/mysql.conf.d/mysqld.cnf
+     regexp: '^bind-address'
+     line: 'bind-address = 0.0.0.0'
+     backup: yes
+
+- name: Replace master.cnf
+  become: true
+  template:
+    src=templates/master.cnf
+    dest=/etc/mysql/mysql.conf.d/master.cnf
+  when:
+    - mysql_replication_role == 'master'
+
+- name: restart mysql
+  become: true
+  systemd:
+    name: mysql
+    state: restarted
+  when:
+    - mysql_replication_role == 'master'
+
+- name: Replace slave.cnf
+  become: true
+  template:
+    src=templates/slave.cnf
+    dest=/etc/mysql/mysql.conf.d/slave.cnf
+  when:
+    - mysql_replication_role == 'slave'
+
+- name: restart mysql
+  become: true
+  systemd:
+    name: mysql
+    state: restarted
+  when:
+    - mysql_replication_role == 'slave'
+
+- name: ensure replication user exists on master.
+  mysql_user:
+    name: "{{ mysql_replication_user }}"
+    host: "%"
+    password: "{{ mysql_replication_password }}"
+    priv: "*.*:REPLICATION SLAVE,REPLICATION CLIENT"
+    state: present
+  when:
+    - mysql_replication_role == 'master'
+
+- name: check slave replication status
+  become: true
+  mysql_replication:
+    mode: getreplica
+  register: slave
+  when:
+    - mysql_replication_role == 'slave'
+
+- name: check master replication status
+  become: true
+  mysql_replication:
+    mode: getprimary
+  register: master
+  when:
+    - mysql_replication_role == 'slave'
+
+- name: configure replication on the slave
+  become: true
+  mysql_replication:
+    mode: changeprimary
+    primary_host: "{{ mysql_replication_master }}"
+    primary_user: "{{ mysql_replication_user }}"
+    primary_password: "{{ mysql_replication_password }}"
+    primary_log_file: "{{ master.File }}"
+    primary_log_pos: "{{ master.Position }}"
+  when:
+    - mysql_replication_role == 'slave'
+
+- name: start replica
+  become: true
+  mysql_replication:
+    mode: startreplica
